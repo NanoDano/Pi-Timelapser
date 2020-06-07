@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+from datetime import datetime, timedelta
+from smtplib import SMTP_SSL, SMTP_SSL_PORT
+from email.message import EmailMessage
+from ftplib import FTP
+# TODO: create cpanel page for content
+# start with just dir listing? php script to list contents/display? 
+
+
+
+def make_timelapse_video(date):
+    yesterday_date = ''
+    # glob files in images/{yesterday_date}
+    # sort by date, oldest first
+    # write list to file
+    # Run mencoder command
+    # Store video in the day's directory
+
+def delete_content(date):
+    pass
+
+def ftp_upload(date):
+    with FTP('ftp.example.com', 'user', 'pass') as ftp:
+        with open('image.png', 'rb') as image_file:
+            ftp.storbinary('STOR image.png', image_file)
+
+
+def sendmail():
+    from_email = 'John Leon <nanodano@devdungeon.com>'  # or simply the email address
+    to_emails = ['nanodano@devdungeon.com', 'admin@devdungeon.com']
+
+    email_message = EmailMessage()
+    email_message.add_header('To', ', '.join(to_emails))
+    email_message.add_header('From', from_email)
+    email_message.add_header('Subject', 'Hello!')
+    email_message.add_header('X-Priority', '2')  # Urgent/High priority
+    email_message.set_content('Hello, world!')
+
+    smtp_server = SMTP_SSL('mail.example.com', port=SMTP_SSL_PORT)
+    smtp_server.set_debuglevel(1)  # Show SMTP server interactions
+    smtp_server.login('user@example.com', 'pass')
+    smtp_server.sendmail(from_email, to_emails, email_message.as_bytes())
+
+    smtp_server.quit()
+
+
+
+
+def main():
+    yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    print(yesterdays_date)
+    exit()
+    make_timelapse_video(yesterdays_date)
+    ftp_upload(yesterdays_date)
+    delete_content(yesterdays_date)
+    sendmail()
