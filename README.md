@@ -12,6 +12,12 @@ The `merge_videos` script is not on a cron timer, but
 is a utility script provided to assist with stitching multiple
 videos together to create a longer video.
 
+## Camera note
+
+Pi Cam v1 - 2592 × 1944
+Pi Cam v2 - 3280 × 2464
+
+
 ## References
 
 - https://www.raspberrypi.org/documentation/raspbian/applications/camera.md

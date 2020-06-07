@@ -13,4 +13,4 @@ image_dir = join(BASE_IMAGE_DIR, current_time.strftime("%Y-%m-%d"))
 output_filename = join(image_dir, f'image-{current_time.strftime("%Y-%m-%d-%H-%M-%S")}.jpg')
 
 makedirs(image_dir, exist_ok=True)
-system(f'raspistill -o {output_filename} --annotate 12 --quality 100')
+system(f'raspistill -o "{output_filename}" --annotate 12 --quality 100')
