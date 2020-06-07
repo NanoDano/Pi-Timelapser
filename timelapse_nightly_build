@@ -1,11 +1,6 @@
 #!/usr/bin/python3
 """
 Create timelapse video, upload, then delete
-Requires mencoder.
-
-```bash
-sudo apt install mencoder
-```
 """
 import logging
 from datetime import datetime, timedelta
@@ -34,10 +29,9 @@ def make_timelapse_video(date):
         for image in images:
             temp_file.write(f'{image}\n')
     video_path = join(IMAGE_BASE_DIR, date, f'timelapse-{date}.avi')
-    system('mencoder -nosound -ovc lavc -lavcopts '
-           'vcodec=mpeg4:aspect=16/9:vbitrate=8000000 '
-           f'-vf scale={RESOLUTION} -o '
-           f'"{video_path}" -mf type=jpeg:fps=24 "mf://@{image_list_file}"')
+    command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{video_path}" -mf type=jpeg:fps=24 "mf://@{image_list_file}"'
+    logging.info(f'Command: {command}')
+    system(command)
 
 
 
