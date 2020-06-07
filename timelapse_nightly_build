@@ -5,8 +5,9 @@ Create timelapse video, upload, then delete
 import logging
 from datetime import datetime, timedelta
 from glob import glob
-from os import system
-from os.path import join, getmtime
+from os import system, remove
+from os.path import join, getmtime, basename
+from shutil import rmtree
 from smtplib import SMTP_SSL, SMTP_SSL_PORT
 from email.message import EmailMessage
 from ftplib import FTP
@@ -15,6 +16,7 @@ logging.basicConfig(level=logging.INFO)
 
 IMAGE_BASE_DIR = '/home/pi/Pi-Timelapser/images/'
 RESOLUTION = '2592:1944'  # 3280:2464 for Pi Cam v2
+FTP_DESTINATION = 'cammy-timelapse'
 
 # TODO: create cpanel page for content
 # start with just dir listing? php script to list contents/display? 
@@ -35,16 +37,46 @@ def make_timelapse_video(date):
 
 
 
-# def delete_content(date):
-#     pass
-
-# def ftp_upload(date):
-#     with FTP('ftp.example.com', 'user', 'pass') as ftp:
-#         with open('image.png', 'rb') as image_file:
-#             ftp.storbinary('STOR image.png', image_file)
+def delete_content(date):
+    rmtree(join(IMAGE_BASE_DIR, date))
 
 
-# def sendmail():
+def ftp_upload(date):
+    #logging.debug('Connecting to FTP _ as _')
+    with FTP('ftp.example.com', 'user', 'pass') as ftp:
+        # Move in to target dir, ensuring it exists
+        try:
+            logging.debug(f'Changing FTP dir to {FTP_DESTINATION}')
+            ftp.cwd(FTP_DESTINATION)
+        except Exception:
+            logging.warning(f'Could not change FTP dir to {FTP_DESTINATION}. Trying to create.')
+            try:
+                logging.debug(f'Trying to create FTP dir {FTP_DESTINATION}')
+                ftp.mkd(FTP_DESTINATION)
+            except Exception as e:
+                logging.error(f"Error creating/moving to the FTP destination: {FTP_DESTINATION}")
+                raise e
+
+        try:
+            logging.debug(f'Trying to create FTP dir to {date}')
+            ftp.mkd(date)
+        except Exception as e:
+            logging.warning(f'Error creating daily folder for upload. May already exist. {e}')
+
+        try:
+            logging.debug(f'Trying to change FTP dir to {date}')
+            ftp.cwd(date)
+        except Exception as e:
+            logging.error(f'Could not move to FTP dir {date}. {e}')
+            raise e
+
+        # Upload all files
+        for local_filename in glob(join(IMAGE_BASE_DIR, date, '*')):
+            with open(local_filename, 'rb') as local_file:
+                ftp.storbinary(f'STOR {basename(local_filename)}', local_file)
+
+
+# def sendmail(subject="Pi-Timelapser", body=None):
 #     from_email = 'John Leon <nanodano@devdungeon.com>'  # or simply the email address
 #     to_emails = ['nanodano@devdungeon.com', 'admin@devdungeon.com']
 #
@@ -68,8 +100,14 @@ def main():
     print(yesterdays_date)
     logging.info('Making timelapse video')
     make_timelapse_video(yesterdays_date)
-    # ftp_upload(yesterdays_date)
-    # delete_content(yesterdays_date)
+    try:
+        ftp_upload(yesterdays_date)
+    except Exception as e:
+        # TODO Email me error
+        logging.error("Error uploading over FTP. Aborting and not deleting content.")
+        raise e
+
+    delete_content(yesterdays_date)
     # sendmail()
 
 
