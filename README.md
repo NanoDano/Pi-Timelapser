@@ -12,10 +12,16 @@ The `merge_videos` script is not on a cron timer, but
 is a utility script provided to assist with stitching multiple
 videos together to create a longer video.
 
+Requires mencoder to make timelapse videos.
+
+```bash
+sudo apt install mencoder
+```
+
 ## Camera note
 
-Pi Cam v1 - 2592 × 1944
-Pi Cam v2 - 3280 × 2464
+Pi Cam v1 - 2592x1944
+Pi Cam v2 - 3280x2464
 
 
 ## References

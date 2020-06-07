@@ -1,5 +1,13 @@
 #!/usr/bin/python3
-"""Create timelapse video, upload, then delete"""
+"""
+Create timelapse video, upload, then delete
+Requires mencoder.
+
+```bash
+sudo apt install mencoder
+```
+"""
+import logging
 from datetime import datetime, timedelta
 from glob import glob
 from os import system
@@ -8,6 +16,7 @@ from smtplib import SMTP_SSL, SMTP_SSL_PORT
 from email.message import EmailMessage
 from ftplib import FTP
 
+logging.basicConfig(level=logging.INFO)
 
 IMAGE_BASE_DIR = '/home/pi/Pi-Timelapser/images/'
 RESOLUTION = '2592:1944'  # 3280:2464 for Pi Cam v2
@@ -22,7 +31,8 @@ def make_timelapse_video(date):
     images.sort(key=getmtime)
     image_list_file = join(image_dir, 'image-list.txt')
     with open(image_list_file, 'w') as temp_file:
-        temp_file.writelines(images)
+        for image in images:
+            temp_file.write(f'{image}\n')
     video_path = join(IMAGE_BASE_DIR, date, f'timelapse-{date}.avi')
     system('mencoder -nosound -ovc lavc -lavcopts '
            'vcodec=mpeg4:aspect=16/9:vbitrate=8000000 '
@@ -62,6 +72,7 @@ def make_timelapse_video(date):
 def main():
     yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     print(yesterdays_date)
+    logging.info('Making timelapse video')
     make_timelapse_video(yesterdays_date)
     # ftp_upload(yesterdays_date)
     # delete_content(yesterdays_date)
