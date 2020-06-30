@@ -1,29 +1,80 @@
 #!/usr/bin/python3
 """
 Create timelapse video, upload, then delete
+
+Requires dotenv
+pip install python-dotenv
 """
 import logging
 from datetime import datetime, timedelta
 from glob import glob
-from os import system, remove
+from os import system, remove, environ
 from os.path import join, getmtime, basename
 from shutil import rmtree
 from smtplib import SMTP_SSL, SMTP_SSL_PORT
 from email.message import EmailMessage
 from ftplib import FTP
-
 logging.basicConfig(level=logging.INFO)
+from dotenv import load_dotenv
 
-IMAGE_BASE_DIR = '/home/pi/Pi-Timelapser/images/'
-RESOLUTION = '2592:1944'  # 3280:2464 for Pi Cam v2
-FTP_DESTINATION = 'cammy-timelapse'
+# TODO make fault tolerant on FTP uploads
+# TODO use env vars
+# TODO document/package better
+
+load_dotenv()
+
+
+LOCAL_IMAGE_BASE_DIR = environ.get('LOCAL_IMAGE_BASE_DIR', None)
+if not LOCAL_IMAGE_BASE_DIR:
+    logging.error('No LOCAL_IMAGE_BASE_DIR in environment. E.g. /home/pi/Pi-Timelapser/images/ Exiting.')
+    exit(1)
+CAM_RESOLUTION = environ.get('CAM_RESOLUTION', None)
+if not CAM_RESOLUTION:
+    logging.error('No CAM_RESOLUTION provided in environment. E.g. 2592:1944 or 3280:2464')
+    exit(1)
+
+
+FTP_USER = environ.get('FTP_USER', None)
+if not FTP_USER:
+    logging.error('No FTP_USER in environment. Exiting')
+    exit(1)
+FTP_PASS = environ.get('FTP_PASS', None)
+if not FTP_PASS:
+    logging.error('No FTP_PASS in environment. Exiting.')
+    exit(1)
+FTP_HOST = environ.get('FTP_HOST', None)
+if not FTP_HOST:
+    logging.error('No FTP_HOST in environment. Exiting.')
+    exit(1)
+FTP_DESTINATION_DIR = environ.get('FTP_DESTINATION_DIR', None)
+if not FTP_DESTINATION_DIR:
+    logging.error('No FTP_DESTINATION_DIR in environment E.g. cam-timelapse. Exiting.')
+    exit(1)
+SMTP_HOST = environ.get('SMTP_HOST', None)
+if not SMTP_HOST:
+    logging.error('No SMTP_HOST provided in environment. Exiting.')
+    exit(1)
+SMTP_PORT = environ.get('SMTP_PORT', 465)
+SMTP_USER = environ.get('SMTP_USER', None)
+if not SMTP_USER:
+    logging.error('No SMTP_USER provided in environment. Exiting.')
+    exit(1)
+SMTP_PASS = environ.get('SMTP_PASS', None)
+if not SMTP_PASS:
+    logging.error('No SMTP_PASS provided in environment. Exiting.')
+    exit(1)
+
+
+#     from_email = 'John Leon <nanodano@devdungeon.com>'  # or simply the email address
+#     to_emails = ['nanodano@devdungeon.com', 'admin@devdungeon.com']
+
 
 # TODO: create cpanel page for content
 # start with just dir listing? php script to list contents/display? 
 
 
 def make_timelapse_video(date):
-    image_dir = join(IMAGE_BASE_DIR, date)
+    image_dir = join(LOCAL_IMAGE_BASE_DIR, date)
     images = glob(join(image_dir, '*.jpg'))
     images.sort(key=getmtime)
     image_list_file = join(image_dir, 'image-list.txt')
@@ -36,7 +87,6 @@ def make_timelapse_video(date):
     system(command)
 
 
-
 def delete_content(date):
     rmtree(join(IMAGE_BASE_DIR, date))
 
@@ -46,15 +96,15 @@ def ftp_upload(date):
     with FTP('ftp.example.com', 'user', 'pass') as ftp:
         # Move in to target dir, ensuring it exists
         try:
-            logging.debug(f'Changing FTP dir to {FTP_DESTINATION}')
-            ftp.cwd(FTP_DESTINATION)
+            logging.debug(f'Changing FTP dir to {FTP_DESTINATION_DIR}')
+            ftp.cwd(FTP_DESTINATION_DIR)
         except Exception:
-            logging.warning(f'Could not change FTP dir to {FTP_DESTINATION}. Trying to create.')
+            logging.warning(f'Could not change FTP dir to {FTP_DESTINATION_DIR}. Trying to create.')
             try:
-                logging.debug(f'Trying to create FTP dir {FTP_DESTINATION}')
-                ftp.mkd(FTP_DESTINATION)
+                logging.debug(f'Trying to create FTP dir {FTP_DESTINATION_DIR}')
+                ftp.mkd(FTP_DESTINATION_DIR)
             except Exception as e:
-                logging.error(f"Error creating/moving to the FTP destination: {FTP_DESTINATION}")
+                logging.error(f"Error creating/moving to the FTP destination: {FTP_DESTINATION_DIR}")
                 raise e
 
         try:
@@ -73,12 +123,16 @@ def ftp_upload(date):
         # Upload all files
         for local_filename in glob(join(IMAGE_BASE_DIR, date, '*')):
             with open(local_filename, 'rb') as local_file:
-                ftp.storbinary(f'STOR {basename(local_filename)}', local_file)
+                logging.info(f'Uploading {local_filename}')
+                try:
+                    ftp.storbinary(f'STOR {basename(local_filename)}', local_file)
+                except TimeoutError:
+                    # Retry one more time if it timed out.
+                    ftp.storbinary(f'STOR {basename(local_filename)}', local_file)
+
 
 
 # def sendmail(subject="Pi-Timelapser", body=None):
-#     from_email = 'John Leon <nanodano@devdungeon.com>'  # or simply the email address
-#     to_emails = ['nanodano@devdungeon.com', 'admin@devdungeon.com']
 #
 #     email_message = EmailMessage()
 #     email_message.add_header('To', ', '.join(to_emails))
