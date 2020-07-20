@@ -31,7 +31,7 @@ python3 manage.py collectstatic
 
 ### Setup gunicorn
 
-Create a systemd service file for the gunicorn/django app.
+1. Create a systemd service file for the gunicorn/django app.
 
 ```
 # /etc/systemd/system/Timelapser.service
@@ -42,12 +42,19 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/var/www/Pi-Timelapser/app/
+WorkingDirectory=/var/www/Pi-Timelapser/app
 ExecStart=/usr/local/bin/gunicorn app.wsgi -b 127.0.0.1:8001
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
+```
+
+2. Enable and start the service
+
+```bash
+sudo systemctl enable Timelapser
+sudo systemctl start Timelapser
 ```
 
 ### Setup Nginx
@@ -71,8 +78,8 @@ server {
     listen 0.0.0.0:443 ssl;
     server_name cammy.attlocal.net;
 
-    ssl_certificate /etc/ssl/private/pi-timelapser.cert
-    ssl_certificate_key /etc/ssl/private/pi-timelapster.key
+    ssl_certificate /etc/ssl/private/pi-timelapser.cert;
+    ssl_certificate_key /etc/ssl/private/pi-timelapster.key;
     ssl_ciphers  HIGH:!aNULL:!MD5;
 
     location /static/ {
@@ -100,7 +107,7 @@ sudo ln -s \
 4. Enable and start the service
 
 ```bash
-sudo systemtl enable nginx
+sudo systemctl enable nginx
 sudo systemctl start nginx
 ```
 
