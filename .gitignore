@@ -1,6 +1,6 @@
 .idea
-images
-
+app/static
+app/media
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
