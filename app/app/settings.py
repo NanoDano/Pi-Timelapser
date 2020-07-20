@@ -25,7 +25,7 @@ SECRET_KEY = '*hxmnju-ln9nrq6m0vj!6%cs^6ghdz9_q3c6pf7c*-4c05%p15'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['plantbot.attlocal.net']
+ALLOWED_HOSTS = ['cammy.attlocal.net']
 
 
 # Application definition

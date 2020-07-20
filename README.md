@@ -88,10 +88,9 @@ server {
     location /media/ {
         alias /var/www/Pi-Timelapser/app/media/;
     }
-
     location / {
-        include uwsgi_params;
-        uwsgi_pass 127.0.0.1:8001;
+        include proxy_params;
+        proxy_pass http://127.0.0.1:8001;
     }
 }
 ```
