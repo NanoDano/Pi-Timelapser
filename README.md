@@ -7,8 +7,8 @@ Scripts for creating timelapse videos on a Raspberry Pi.
 ### Install dependencies
 
 ```bash
-sudo apt install mencoder python3-django nginx
-sudo python3 -m pip install gunicorn
+sudo apt install mencoder nginx
+sudo python3 -m pip install gunicorn django
 ```
 
 ### Setup Django app
