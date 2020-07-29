@@ -1,28 +1,53 @@
+from datetime import timedelta
+from glob import glob
+from os import system
+from os.path import join, getmtime
+
 from django.core.management import BaseCommand
+from django.utils.datetime_safe import datetime
+
+from app.settings import MEDIA_ROOT, RESOLUTION
 
 
 class Command(BaseCommand):
 
+    help = 'Perform nightly build making timelapse video and uploading timelapse over FTP'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        self.local_image_base_dir = join(MEDIA_ROOT, self.yesterdays_date)
+
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
-
-
-
-        yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        print(yesterdays_date)
-        logging.info('Making timelapse video')
-        make_timelapse_video(yesterdays_date)
+        self.make_timelapse_video()
+        self.zip_video()
         try:
-            ftp_upload(yesterdays_date)
+            ftp_upload(f'{video_path}.gz')
         except Exception as e:
             # TODO Email me error
-            logging.error("Error uploading over FTP. Aborting and not deleting content.")
+            self.stdout.write("Error uploading over FTP. Aborting and not deleting content.")
             raise e
-
-        # Delete yesterday's content
-        rmtree(join(IMAGE_BASE_DIR, date))
+        delete_photo_dir(self.yesterdays_date)
         # sendmail()
 
+    def make_timelapse_video(self):
+        image_dir = join(self.local_image_base_dir, self.yesterdays_date)
+        images = glob(join(image_dir, '*.jpg'))
+        images.sort(key=getmtime)
+
+        image_list_file = join(image_dir, 'image-list.txt')
+        with open(image_list_file, 'w') as temp_file:
+            for image in images:
+                temp_file.write(f'{image}\n')
+
+        video_path = join(self.local_image_base_dir, self.yesterdays_date, f'timelapse-{self.yesterdays_date}.avi')
+        command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{video_path}" -mf type=jpeg:fps=24 "mf://@{image_list_file}" '
+        system(command)
+
+    def zip_video(self):
+
+        system(f'gzip {video_path}')
 
 
 
@@ -53,19 +78,11 @@ class Command(BaseCommand):
 #
 # load_dotenv()
 
+def delete_photo_dir(yesterdays_date):
+    rmtree(join(IMAGE_BASE_DIR, date))
 
-def make_timelapse_video(date):
-    image_dir = join(LOCAL_IMAGE_BASE_DIR, date)
-    images = glob(join(image_dir, '*.jpg'))
-    images.sort(key=getmtime)
-    image_list_file = join(image_dir, 'image-list.txt')
-    with open(image_list_file, 'w') as temp_file:
-        for image in images:
-            temp_file.write(f'{image}\n')
-    video_path = join(IMAGE_BASE_DIR, date, f'timelapse-{date}.avi')
-    command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{video_path}" -mf type=jpeg:fps=24 "mf://@{image_list_file}"'
-    logging.info(f'Command: {command}')
-    system(command)
+
+
 
 
 def delete_content(date):

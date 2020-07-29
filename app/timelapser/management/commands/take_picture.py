@@ -1,6 +1,5 @@
 from os import system, makedirs
 from os.path import join
-
 from django.core.management import BaseCommand
 from django.utils.datetime_safe import datetime
 
@@ -25,6 +24,8 @@ class Command(BaseCommand):
             image_filename,
         )
 
+        self.stdout.write(self.style.SUCCESS(f'Taking picture to {output_filename}'))
+
         # Take the photo
         code = system(f'raspistill -o "{output_filename}" --annotate 12 --quality 100')
         if code != 0:
@@ -34,4 +35,3 @@ class Command(BaseCommand):
         # Store the photo reference in database
         Photo.objects.create(time_taken=trigger_time, image_file=join(day, image_filename)).save()
         self.stdout.write(self.style.SUCCESS(f'Took photo {output_filename}'))
-

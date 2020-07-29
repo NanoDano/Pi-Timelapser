@@ -21,6 +21,6 @@ from timelapser.views import home
 from app import settings
 
 urlpatterns = [
-                  path('', home),
-                  path('admin/', admin.site.urls),
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+  path('', home),
+  path('admin/', admin.site.urls),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

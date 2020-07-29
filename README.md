@@ -11,6 +11,13 @@ sudo apt install mencoder nginx
 sudo python3 -m pip install gunicorn django pillow
 ```
 
+Or could install gunicorn using user pip install,
+which will install script to `/home/pi/.local/bin/gunicorn`
+
+```bash
+python3 -m pip install gunicorn
+```
+
 ### Setup Django app
 
 ```bash
@@ -70,7 +77,7 @@ sudo openssl \
   -subj "/C=US/ST=NRW/L=Earth/O=CompanyName/OU=IT/CN=www.example.com/emailAddress=email@example.com"
 ```
 
-2. Create a config file in `/etc/nginx/sites-available/`.
+2. Create a config file for nginx in `/etc/nginx/sites-available/`.
 
 ```
 # /etc/nginx/sites-available/pi-timelapser.conf
