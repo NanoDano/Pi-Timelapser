@@ -43,7 +43,7 @@ class Command(BaseCommand):
             self.delete_photo_dir()
             mail_admins('Timelapse video uploaded', f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
         except Exception as e:
-            mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR}')
+            mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR} - {e}')
 
     def make_timelapse_video(self):
         command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{self.video_path}" -mf type=jpeg:fps=24 "mf://@{self.image_list_file}" '
@@ -54,6 +54,7 @@ class Command(BaseCommand):
     def zip_video(self):
         self.stdout.write(f'Zipping {self.video_path}')
         if not system(f'gzip -f {self.video_path}'):
+            self.stdout.write(self.style.ERROR(f'Error zipping {self.video_path}'))
             raise Exception(f'Error zipping {self.video_path}')
 
     def ftp_upload(self):
@@ -64,7 +65,7 @@ class Command(BaseCommand):
             except Exception:
                 ftp.mkd(FTP_DESTINATION_DIR)
                 ftp.cwd(FTP_DESTINATION_DIR)
-                
+
             with open(self.zipped_video_path, 'rb') as local_file:
                 try:
                     ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
