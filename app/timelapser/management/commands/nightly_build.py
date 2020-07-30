@@ -21,7 +21,7 @@ class Command(BaseCommand):
         self.yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         self.local_image_base_dir = join(MEDIA_ROOT, self.yesterdays_date)
         self.image_list_file = self.create_image_file_list()
-        self.video_path = join(self.local_image_base_dir, self.yesterdays_date, f'timelapse-{self.yesterdays_date}.avi')
+        self.video_path = join(self.local_image_base_dir, f'timelapse-{self.yesterdays_date}.avi')
         self.zipped_video_path = f'{self.video_path}.gz'
 
     def create_image_file_list(self):
@@ -36,11 +36,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
-        self.make_timelapse_video()
-        self.zip_video()
-        self.ftp_upload()
-        self.delete_photo_dir()
-        mail_admins('Timelapse video uploaded', f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
+        try:
+            self.make_timelapse_video()
+            self.zip_video()
+            self.ftp_upload()
+            self.delete_photo_dir()
+            mail_admins('Timelapse video uploaded', f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
+        except Exception as e:
+            mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR}')
 
     def make_timelapse_video(self):
         command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{self.video_path}" -mf type=jpeg:fps=24 "mf://@{self.image_list_file}" '
