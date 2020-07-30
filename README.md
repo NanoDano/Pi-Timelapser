@@ -4,24 +4,7 @@ Scripts for creating timelapse videos on a Raspberry Pi.
 
 ## Setup
 
-### Install dependencies
-
 ```bash
-sudo apt install mencoder nginx
-sudo python3 -m pip install gunicorn django pillow
-```
-
-Or could install gunicorn using user pip install,
-which will install script to `/home/pi/.local/bin/gunicorn`
-
-```bash
-python3 -m pip install gunicorn
-```
-
-### Setup Django app
-
-```bash
-
 git clone https://github.com/NanoDano/Pi-Timelapser /home/pi/Pi-Timelapser
 cd /home/pi/Pi-Timelapser
 /usr/bin/python3 -m venv venv
@@ -55,8 +38,6 @@ And add the lines:
 The `merge_videos` script is not on a cron timer, but
 is a utility script provided to assist with stitching multiple
 videos together to create a longer video.
-
-
 
 
 ### Setup gunicorn

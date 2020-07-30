@@ -58,14 +58,13 @@ class Command(BaseCommand):
                 ftp.cwd(FTP_DESTINATION_DIR)
             except Exception:
                 ftp.mkd(FTP_DESTINATION_DIR)
-            ftp.cwd(self.yesterdays_date)
 
             with open(self.zipped_video_path, 'rb') as local_file:
                 try:
                     ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                 except TimeoutError:  # Retry one more time if it timed out.
                     try:
-                        ftp.storbinary(f'STOR {PI_NAME}-{basename(self.zipped_video_path)}', local_file)
+                        ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                     except Exception as e:
                         # Error uploading on second attempt too
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
