@@ -5,6 +5,7 @@ Scripts for creating timelapse videos on a Raspberry Pi.
 ## Setup
 
 ```bash
+sudo apt install -y mencoder
 git clone https://github.com/NanoDano/Pi-Timelapser /home/pi/Pi-Timelapser
 /usr/bin/python3 -m venv /home/pi/Pi-Timelapser/venv
 /home/pi/Pi-Timelapser/venv/bin/python -m pip install -r /home/pi/Pi-Timelapser/requirements.txt

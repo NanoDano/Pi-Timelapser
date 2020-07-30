@@ -46,7 +46,7 @@ class Command(BaseCommand):
             mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR}')
 
     def make_timelapse_video(self):
-        command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{self.video_path}" -mf type=jpeg:fps=24 "mf://@{self.image_list_file}" '
+        command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 scale={RESOLUTION} -o "{self.video_path}" -mf type=jpeg:fps=24 "mf://@{self.image_list_file}" '
         system(command)
         system(f'gzip {self.video_path}')
         return self.video_path
