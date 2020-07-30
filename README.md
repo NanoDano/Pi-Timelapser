@@ -26,10 +26,36 @@ sudo git clone https://github.com/NanoDano/Pi-Timelapser
 cd Pi-Timelapser/app
 python3 manage.py migrate
 python3 manage.py collectstatic
+# Copy `app/settings.example.py` to `app/settings.py` and fill out the vars
+cp app/settings{.example,}.py
+vim app/settings.py
 ```
 
 
 
+### Setup cron jobs
+
+There are two cron jobs to setup:
+
+1. Taking a picture ever X minutes
+2. Nightly "build" which creates the timelapse video and uploads over FTP
+
+Run:
+
+```bash
+crontab -e
+```
+
+And add the lines:
+
+```text
+*/5 * * * * /home/pi/Pi-Timelapser/take_picture 2>&1
+0 0 * * * /home/pi/Pi-Timelapser/timelapse_nightly_build 2>&1
+```
+
+The `merge_videos` script is not on a cron timer, but
+is a utility script provided to assist with stitching multiple
+videos together to create a longer video.
 
 
 
@@ -127,29 +153,6 @@ sudo systemctl start nginx
 
 
 
-### Setup cron jobs
-
-There are two cron jobs to setup:
-
-1. Taking a picture ever X minutes
-2. Nightly "build" which creates the timelapse video and uploads over FTP
-
-Run:
-
-```bash
-crontab -e
-```
-
-And add the lines:
-
-```text
-*/5 * * * * /home/pi/Pi-Timelapser/take_picture 2>&1
-0 0 * * * /home/pi/Pi-Timelapser/timelapse_nightly_build 2>&1
-```
-
-The `merge_videos` script is not on a cron timer, but
-is a utility script provided to assist with stitching multiple
-videos together to create a longer video.
 
 ## Camera resolution
 

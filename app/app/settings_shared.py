@@ -108,11 +108,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
-RESOLUTION = '3280x2464'  # 2592x1944
-
-FTP_SERVER = os.environ.get('FTP_SERVER', None)
-FTP_USER = os.environ.get('FTP_USER', None)
-FTP_PASS = os.environ.get('FTP_PASS', None)
-FTP_DESTINATION_DIR = os.environ.get('FTP_DESTINATION_DIR', None)
-# ADMINS = (('Name', 'email'),)
