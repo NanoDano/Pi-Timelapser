@@ -60,7 +60,7 @@ class Command(BaseCommand):
             raise Exception(f'Error zipping {self.video_path}')
 
     def ftp_upload(self):
-        self.stdout.write(f'Uploading to FTP {FTP_SERVER} with {FTP_USER} to {FTP_DESTINATION_DIR} file {self.zipped_video_path}')
+        self.stdout.write(self.style.SUCCESS(f'Uploading to FTP {FTP_SERVER} with {FTP_USER} to {FTP_DESTINATION_DIR} file {self.zipped_video_path}'))
         with FTP_TLS(FTP_SERVER, FTP_USER, FTP_PASS) as ftp:
             try:
                 ftp.cwd(FTP_DESTINATION_DIR)
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
 
     def delete_photo_dir(self):
-        self.stdout.write(f'Deleting directory {self.local_image_base_dir}')
+        self.stdout.write(self.style.SUCCESS(f'Deleting directory {self.local_image_base_dir}'))
         rmtree(self.local_image_base_dir)
 
 
