@@ -7,8 +7,8 @@ Scripts for creating timelapse videos on a Raspberry Pi.
 ```bash
 git clone https://github.com/NanoDano/Pi-Timelapser /home/pi/Pi-Timelapser
 /usr/bin/python3 -m venv /home/pi/Pi-Timelapser/venv
-/home/pi/Pi-Timelapser/venv/bin/python -m pip install -r requirements.txt
-cp /home/pi/Pi-Timelapser/app/settings{.example,}.py
+/home/pi/Pi-Timelapser/venv/bin/python -m pip install -r /home/pi/Pi-Timelapser/requirements.txt
+cp /home/pi/Pi-Timelapser/app/app/settings{.example,}.py
 /home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py migrate
 /home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py collectstatic
 vim /home/pi/Pi-Timelapser/app/app/settings.py
