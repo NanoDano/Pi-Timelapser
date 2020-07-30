@@ -25,10 +25,9 @@ class Command(BaseCommand):
         self.zipped_video_path = f'{self.video_path}.gz'
 
     def create_image_file_list(self):
-        image_dir = join(self.local_image_base_dir, self.yesterdays_date)
         images = glob(join(self.local_image_base_dir, '*.jpg'))
         images.sort(key=getmtime)
-        image_list_file = join(image_dir, 'image-list.txt')
+        image_list_file = join(self.local_image_base_dir, 'image-list.txt')
 
         with open(image_list_file, 'w') as temp_file:
             for image in images:
