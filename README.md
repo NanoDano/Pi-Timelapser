@@ -21,17 +21,17 @@ python3 -m pip install gunicorn
 ### Setup Django app
 
 ```bash
-cd /var/www/
-sudo git clone https://github.com/NanoDano/Pi-Timelapser 
-cd Pi-Timelapser/app
-python3 manage.py migrate
-python3 manage.py collectstatic
-# Copy `app/settings.example.py` to `app/settings.py` and fill out the vars
-cp app/settings{.example,}.py
-vim app/settings.py
+
+git clone https://github.com/NanoDano/Pi-Timelapser /home/pi/Pi-Timelapser
+cd /home/pi/Pi-Timelapser
+/usr/bin/python3 -m venv venv
+/home/pi/Pi-Timelapser/venv/bin/python -m pip install -r requirements.txt
+cd /home/pi/Pi-Timelapser/app
+/home/pi/Pi-Timelapser/venv/bin/python manage.py migrate
+/home/pi/Pi-Timelapser/venv/bin/python manage.py collectstatic
+cp /home/pi/Pi-Timelpser/app/settings{.example,}.py
+vim /home/pi/Pi-Timelapser/app/app/settings.py
 ```
-
-
 
 ### Setup cron jobs
 
@@ -49,15 +49,13 @@ crontab -e
 And add the lines:
 
 ```text
-*/5 * * * * /home/pi/Pi-Timelapser/take_picture 2>&1
-0 0 * * * /home/pi/Pi-Timelapser/timelapse_nightly_build 2>&1
+*/5 * * * * /home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py take_picture
+0 0 * * * /home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py nightly_build
 ```
 
 The `merge_videos` script is not on a cron timer, but
 is a utility script provided to assist with stitching multiple
 videos together to create a longer video.
-
-
 
 
 
