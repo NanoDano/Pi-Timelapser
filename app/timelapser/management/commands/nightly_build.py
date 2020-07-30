@@ -53,8 +53,9 @@ class Command(BaseCommand):
 
     def zip_video(self):
         self.stdout.write(f'Zipping {self.video_path}')
-        if not system(f'gzip -f {self.video_path}'):
-            self.stdout.write(self.style.ERROR(f'Error zipping {self.video_path}'))
+        gzip_result = system(f'gzip -f {self.video_path}'):
+        if gzip_result != 0:
+            self.stdout.write(self.style.ERROR(f'Error zipping {self.video_path} - Gzip result: {gzip_result}'))
             raise Exception(f'Error zipping {self.video_path}')
 
     def ftp_upload(self):
