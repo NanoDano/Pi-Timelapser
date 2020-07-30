@@ -26,10 +26,9 @@ git clone https://github.com/NanoDano/Pi-Timelapser /home/pi/Pi-Timelapser
 cd /home/pi/Pi-Timelapser
 /usr/bin/python3 -m venv venv
 /home/pi/Pi-Timelapser/venv/bin/python -m pip install -r requirements.txt
-cd /home/pi/Pi-Timelapser/app
-/home/pi/Pi-Timelapser/venv/bin/python manage.py migrate
-/home/pi/Pi-Timelapser/venv/bin/python manage.py collectstatic
-cp /home/pi/Pi-Timelpser/app/settings{.example,}.py
+cp /home/pi/Pi-Timelapser/app/settings{.example,}.py
+/home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py migrate
+/home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py collectstatic
 vim /home/pi/Pi-Timelapser/app/app/settings.py
 ```
 
