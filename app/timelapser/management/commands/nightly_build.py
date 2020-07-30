@@ -50,7 +50,6 @@ class Command(BaseCommand):
         #           mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale=1920:1080 -o timelapse.avi -mf type=jpeg:fps=24 mf://@stills.txt
         self.stdout.write(self.style.SUCCESS(f'Command: {command}'))
         system(command)
-        system(f'gzip {self.video_path}')
 
     def zip_video(self):
         self.stdout.write(f'Zipping {self.video_path}')
