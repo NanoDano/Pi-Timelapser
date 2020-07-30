@@ -17,33 +17,40 @@ class Command(BaseCommand):
     help = 'Perform nightly build making timelapse video and uploading timelapse over FTP'
 
     def __init__(self, *args, **kwargs):
+        self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
         super().__init__(args, kwargs)
         self.yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         self.local_image_base_dir = join(MEDIA_ROOT, self.yesterdays_date)
         self.image_list_file = self.create_image_file_list()
         self.video_path = join(self.local_image_base_dir, self.yesterdays_date, f'timelapse-{self.yesterdays_date}.avi')
+        self.zipped_video_path = f'{self.video_path}.gz'
+
+    def create_image_file_list(self):
+        image_dir = join(self.local_image_base_dir, self.yesterdays_date)
+        images = glob(join(self.local_image_base_dir, '*.jpg'))
+        images.sort(key=getmtime)
+        image_list_file = join(image_dir, 'image-list.txt')
+
+        with open(image_list_file, 'w') as temp_file:
+            for image in images:
+                temp_file.write(f'{image}\n')
+        return image_list_file
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
         self.make_timelapse_video()
         self.zip_video()
         self.ftp_upload()
         self.delete_photo_dir()
-        # sendmail()
-
-    def create_timelapse_image_list(self):
-        pass
+        mail_admins('Timelapse video uploaded', f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
 
     def make_timelapse_video(self):
-        self.create_timelapse_image_list()
-
         command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{self.video_path}" -mf type=jpeg:fps=24 "mf://@{self.image_list_file}" '
         system(command)
         system(f'gzip {self.video_path}')
         return self.video_path
 
-    def delete_photo_dir(self):
-        rmtree(join(self.local_image_base_dir, self.yesterdays_date))
+    def zip_video(self):
+        system(f'gzip {self.video_path}')
 
     def ftp_upload(self):
         with FTP_TLS(FTP_SERVER, FTP_USER, FTP_PASS) as ftp:
@@ -63,18 +70,8 @@ class Command(BaseCommand):
                         # Error uploading on second attempt too
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
 
-    def zip_video(self):
-        system(f'gzip {self.video_path}')
-        self.zipped_video_path = self.video_path + '.gz'
+    def delete_photo_dir(self):
+        rmtree(join(self.local_image_base_dir, self.yesterdays_date))
 
-    def create_image_file_list(self):
-        image_dir = join(self.local_image_base_dir, self.yesterdays_date)
-        images = glob(join(self.local_image_base_dir, '*.jpg'))
-        images.sort(key=getmtime)
-        image_list_file = join(image_dir, 'image-list.txt')
 
-        with open(image_list_file, 'w') as temp_file:
-            for image in images:
-                temp_file.write(f'{image}\n')
-        return image_list_file
 
