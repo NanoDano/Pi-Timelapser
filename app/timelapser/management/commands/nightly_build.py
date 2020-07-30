@@ -41,6 +41,7 @@ class Command(BaseCommand):
             self.zip_video()
             self.ftp_upload()
             self.delete_photo_dir()
+            self.stdout.write(self.style.SUCCESS(f'Completed nightly build and FTP upload. Sending email.'))
             mail_admins('Timelapse video uploaded', f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
         except Exception as e:
             mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR} - {e}')

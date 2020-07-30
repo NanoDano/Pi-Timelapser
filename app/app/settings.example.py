@@ -14,3 +14,6 @@ EMAIL_PORT = 465
 EMAIL_HOST_USER = 'user@example.net'
 EMAIL_HOST_PASSWORD = 'asdfasdf'
 EMAIL_USE_SSL = True
+SERVER_EMAIL = 'django@localhost'  # For mails to admins via `mail_admins()`
+EMAIL_SUBJECT_PREFIX = '[MySite] '  # For `mail_admins()`
+DEFAULT_FROM_EMAIL = 'support@example.com'  # For mails to users via `send_mail()`
