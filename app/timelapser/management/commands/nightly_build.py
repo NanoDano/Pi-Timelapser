@@ -53,9 +53,12 @@ class Command(BaseCommand):
         system(f'gzip {self.video_path}')
 
     def zip_video(self):
-        system(f'gzip {self.video_path}')
+        self.stdout.write(f'Zipping {self.video_path}')
+        if not system(f'gzip {self.video_path}'):
+            raise Exception(f'Error zipping {self.video_path}')
 
     def ftp_upload(self):
+        self.stdout.write(f'Uploading to FTP {FTP_SERVER} with {FTP_USER} to {FTP_DESTINATION_DIR} file {self.zipped_video_path}')
         with FTP_TLS(FTP_SERVER, FTP_USER, FTP_PASS) as ftp:
             try:
                 ftp.cwd(FTP_DESTINATION_DIR)
@@ -73,7 +76,8 @@ class Command(BaseCommand):
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
 
     def delete_photo_dir(self):
-        rmtree(join(self.local_image_base_dir, self.yesterdays_date))
+        if not rmtree(self.local_image_base_dir):
+            raise Exception(f'Error deleting {self.local_image_base_dir}')
 
 
 
