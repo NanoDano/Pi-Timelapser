@@ -82,8 +82,7 @@ class Command(BaseCommand):
 
     def delete_photo_dir(self):
         self.stdout.write(f'Deleting directory {self.local_image_base_dir}')
-        if not rmtree(self.local_image_base_dir):
-            raise Exception(f'Error deleting {self.local_image_base_dir}')
+        rmtree(self.local_image_base_dir)
 
 
 
