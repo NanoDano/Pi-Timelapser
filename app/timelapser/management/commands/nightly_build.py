@@ -63,18 +63,22 @@ class Command(BaseCommand):
                 ftp.cwd(FTP_DESTINATION_DIR)
             except Exception:
                 ftp.mkd(FTP_DESTINATION_DIR)
-
+                ftp.cwd(FTP_DESTINATION_DIR)
+                
             with open(self.zipped_video_path, 'rb') as local_file:
                 try:
                     ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                 except TimeoutError:  # Retry one more time if it timed out.
+                    self.stdout.write(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path} due to timeout. Trying once more.'))
                     try:
                         ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                     except Exception as e:
                         # Error uploading on second attempt too
+                        self.stdout.write(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path}'))
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
 
     def delete_photo_dir(self):
+        self.stdout.write(f'Deleting directory {self.local_image_base_dir}')
         if not rmtree(self.local_image_base_dir):
             raise Exception(f'Error deleting {self.local_image_base_dir}')
 
