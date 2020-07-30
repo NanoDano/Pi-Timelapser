@@ -17,7 +17,6 @@ class Command(BaseCommand):
     help = 'Perform nightly build making timelapse video and uploading timelapse over FTP'
 
     def __init__(self, *args, **kwargs):
-        self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
         super().__init__(args, kwargs)
         self.yesterdays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         self.local_image_base_dir = join(MEDIA_ROOT, self.yesterdays_date)
@@ -37,6 +36,7 @@ class Command(BaseCommand):
         return image_list_file
 
     def handle(self, *args, **options):
+        self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
         self.make_timelapse_video()
         self.zip_video()
         self.ftp_upload()
