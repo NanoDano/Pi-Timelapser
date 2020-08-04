@@ -2,7 +2,7 @@ from app.settings_shared import *
 
 # Copy this file to `settings.py` and fill out with your variables
 
-RESOLUTION = '3280:2464'  # 2592x1944
+RESOLUTION = '3280:2464'  # 2592:1944
 FTP_SERVER = 'ftp.example.com'
 FTP_USER = 'myuser'
 FTP_PASS = 'secret'
