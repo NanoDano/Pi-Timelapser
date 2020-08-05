@@ -1,8 +1,8 @@
 .idea
 app/static
 app/media
+app/app/app.env
 
-settings.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

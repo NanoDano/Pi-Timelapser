@@ -1,3 +1,4 @@
+import logging
 from os import system, makedirs
 from os.path import join
 from django.core.management import BaseCommand
@@ -7,12 +8,15 @@ from timelapser.models import Photo
 from app.settings import MEDIA_ROOT
 
 
+logger = logging.getLogger(__name__)
+
+
 class Command(BaseCommand):
 
     help = 'Take photo with Pi camera'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Taking photo with Pi Camera'))
+        logger.info(self.style.SUCCESS('Taking photo with Pi Camera'))
 
         trigger_time = datetime.now()  # Most important time is what time it was triggered
         day = trigger_time.strftime("%Y-%m-%d")
@@ -24,14 +28,14 @@ class Command(BaseCommand):
             image_filename,
         )
 
-        self.stdout.write(self.style.SUCCESS(f'Taking picture to {output_filename}'))
+        logger.info(self.style.SUCCESS(f'Taking picture to {output_filename}'))
 
         # Take the photo
         code = system(f'raspistill -o "{output_filename}" --annotate 12 --quality 100')
         if code != 0:
-            self.stdout.write(self.style.ERROR(f'Error taking picture with raspistill.'))
+            logger.info(self.style.ERROR(f'Error taking picture with raspistill.'))
             raise Exception('Failure during `raspistill`. Does it exist?')
 
         # Store the photo reference in database
         Photo.objects.create(time_taken=trigger_time, image_file=join(day, image_filename)).save()
-        self.stdout.write(self.style.SUCCESS(f'Took photo {output_filename}'))
+        logger.info(self.style.SUCCESS(f'Took photo {output_filename}'))

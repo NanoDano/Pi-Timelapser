@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from ftplib import FTP_TLS
 from glob import glob
@@ -11,9 +12,10 @@ from django.utils.datetime_safe import datetime
 
 from app.settings import MEDIA_ROOT, RESOLUTION, FTP_DESTINATION_DIR, FTP_SERVER, FTP_USER, FTP_PASS
 
+logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
-
     help = 'Perform nightly build making timelapse video and uploading timelapse over FTP'
 
     def __init__(self, *args, **kwargs):
@@ -35,32 +37,34 @@ class Command(BaseCommand):
         return image_list_file
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Beginning timelapse nightly build'))
+        logger.info(self.style.SUCCESS('Beginning timelapse nightly build'))
         try:
             self.make_timelapse_video()
             self.zip_video()
             self.ftp_upload()
             self.delete_photo_dir()
-            self.stdout.write(self.style.SUCCESS(f'Completed nightly build and FTP upload. Sending email.'))
-            mail_admins('Timelapse video uploaded', f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
+            logger.info(self.style.SUCCESS(f'Completed nightly build and FTP upload. Sending email.'))
+            mail_admins('Timelapse video uploaded',
+                        f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
         except Exception as e:
             mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR} - {e}')
 
     def make_timelapse_video(self):
         command = f'mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale={RESOLUTION} -o "{self.video_path}" -mf type=jpeg:fps=24 "mf://@{self.image_list_file}" '
         #           mencoder -nosound -ovc lavc -lavcopts vcodec=mpeg4:aspect=16/9:vbitrate=8000000 -vf scale=1920:1080 -o timelapse.avi -mf type=jpeg:fps=24 mf://@stills.txt
-        self.stdout.write(self.style.SUCCESS(f'Command: {command}'))
+        logger.info(self.style.SUCCESS(f'Command: {command}'))
         system(command)
 
     def zip_video(self):
-        self.stdout.write(f'Zipping {self.video_path}')
+        logger.info(f'Zipping {self.video_path}')
         gzip_result = system(f'gzip -f {self.video_path}')
         if gzip_result != 0:
-            self.stdout.write(self.style.ERROR(f'Error zipping {self.video_path} - Gzip result: {gzip_result}'))
+            logger.error(self.style.ERROR(f'Error zipping {self.video_path} - Gzip result: {gzip_result}'))
             raise Exception(f'Error zipping {self.video_path}')
 
     def ftp_upload(self):
-        self.stdout.write(self.style.SUCCESS(f'Uploading to FTP {FTP_SERVER} with {FTP_USER} to {FTP_DESTINATION_DIR} file {self.zipped_video_path}'))
+        logger.info(self.style.SUCCESS(
+            f'Uploading to FTP {FTP_SERVER} with {FTP_USER} to {FTP_DESTINATION_DIR} file {self.zipped_video_path}'))
         with FTP_TLS(FTP_SERVER, FTP_USER, FTP_PASS) as ftp:
             try:
                 ftp.cwd(FTP_DESTINATION_DIR)
@@ -72,17 +76,15 @@ class Command(BaseCommand):
                 try:
                     ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                 except TimeoutError:  # Retry one more time if it timed out.
-                    self.stdout.write(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path} due to timeout. Trying once more.'))
+                    logger.error(self.style.ERROR(
+                        f'Error uploading timelapse {self.zipped_video_path} due to timeout. Trying once more.'))
                     try:
                         ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                     except Exception as e:
                         # Error uploading on second attempt too
-                        self.stdout.write(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path}'))
+                        logger.error(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path}'))
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
 
     def delete_photo_dir(self):
-        self.stdout.write(self.style.SUCCESS(f'Deleting directory {self.local_image_base_dir}'))
+        logger.info(self.style.SUCCESS(f'Deleting directory {self.local_image_base_dir}'))
         rmtree(self.local_image_base_dir)
-
-
-

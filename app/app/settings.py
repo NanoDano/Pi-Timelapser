@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
 
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, 'app', 'app.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -92,7 +96,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Chicago'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -139,3 +143,23 @@ LOGGING = {
         }
     }
 }
+
+RESOLUTION = os.environ['RESOLUTION']
+FTP_SERVER = os.environ['FTP_SERVER']
+FTP_USER = os.environ['FTP_USER']
+FTP_PASS = os.environ['FTP_USER']
+FTP_DESTINATION_DIR = os.environ['FTP_USER']
+admin = os.environ['ADMINS'].split(',')
+ADMINS = (admin[0], admin[1])
+EMAIL_BACKEND = os.environ['FTP_USER']
+EMAIL_HOST = os.environ['FTP_USER']
+EMAIL_PORT = os.environ['FTP_USER']
+EMAIL_HOST_USER = os.environ['FTP_USER']
+EMAIL_HOST_PASSWORD = os.environ['FTP_USER']
+EMAIL_USE_SSL = os.environ['FTP_USER']
+# For mails to admins via `mail_admins()`
+SERVER_EMAIL = os.environ['FTP_USER']
+# For `mail_admins()`
+EMAIL_SUBJECT_PREFIX = os.environ['FTP_USER']
+# For mails to users via `send_mail()
+DEFAULT_FROM_EMAIL = os.environ['FTP_USER']
