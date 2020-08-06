@@ -4,15 +4,17 @@ Scripts for creating timelapse videos on a Raspberry Pi.
 
 ## Setup
 
+Basic setup steps:
+
 ```bash
 sudo apt install -y mencoder
 git clone https://github.com/NanoDano/Pi-Timelapser /home/pi/Pi-Timelapser
 /usr/bin/python3 -m venv /home/pi/Pi-Timelapser/venv
 /home/pi/Pi-Timelapser/venv/bin/python -m pip install -r /home/pi/Pi-Timelapser/requirements.txt
-cp /home/pi/Pi-Timelapser/app/app/settings{.example,}.py
+cp /home/pi/Pi-Timelapser/app/app/app{.example,}.env
+vim /home/pi/Pi-Timelapser/app/app/app.env
 /home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py migrate
 /home/pi/Pi-Timelapser/venv/bin/python /home/pi/Pi-Timelapser/app/manage.py collectstatic
-vim /home/pi/Pi-Timelapser/app/app/settings.py
 ```
 
 ### Setup cron jobs
@@ -40,7 +42,12 @@ is a utility script provided to assist with stitching multiple
 videos together to create a longer video.
 
 
-### Setup gunicorn
+
+
+
+
+
+### Setup gunicorn or waitress? I don't need the front end even do I? What about waitress?
 
 1. Create a systemd service file for the gunicorn/django app.
 
@@ -72,7 +79,9 @@ sudo systemctl start Timelapser
 
 1. Generate SSL cert and key
 
+
 ```bash
+# TODO put this ssl cert in the timelapser dir instead?
 sudo openssl \
   req \
   -newkey rsa:2048 -nodes \
