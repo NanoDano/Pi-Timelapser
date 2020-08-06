@@ -68,22 +68,28 @@ class Command(BaseCommand):
             f'Uploading to FTP {FTP_SERVER} with {FTP_USER} to {FTP_DESTINATION_DIR} file {self.zipped_video_path}'))
         with FTP_TLS(FTP_SERVER, FTP_USER, FTP_PASS) as ftp:
             try:
+                logger.debug(f'FTP Changing dir to {FTP_DESTINATION_DIR}')
                 ftp.cwd(FTP_DESTINATION_DIR)
             except Exception:
                 ftp.mkd(FTP_DESTINATION_DIR)
+                logger.debug(f'Directory must not exist...Trying to create...')
+                logger.debug(f'Now moving to {FTP_DESTINATION_DIR} again.')
                 ftp.cwd(FTP_DESTINATION_DIR)
 
+            logger.debug(f'Opening local file: {self.zipped_video_path}')
             with open(self.zipped_video_path, 'rb') as local_file:
                 try:
+                    logger.debug('Trying to upload file')
                     ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                 except TimeoutError:  # Retry one more time if it timed out.
                     logger.error(self.style.ERROR(
                         f'Error uploading timelapse {self.zipped_video_path} due to timeout. Trying once more.'))
                     try:
+                        logger.error(f'There was an error uploading. Trying one more time...')
                         ftp.storbinary(f'STOR {basename(self.zipped_video_path)}', local_file)
                     except Exception as e:
                         # Error uploading on second attempt too
-                        logger.error(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path}'))
+                        logger.error(self.style.ERROR(f'Error uploading timelapse {self.zipped_video_path}. Mailing admins.'))
                         mail_admins('Error uploading timelapse', f'Error uploading timelapse {self.zipped_video_path}')
 
     def delete_photo_dir(self):
