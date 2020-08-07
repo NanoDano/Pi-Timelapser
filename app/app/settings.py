@@ -151,15 +151,15 @@ FTP_PASS = os.environ['FTP_PASS']
 FTP_DESTINATION_DIR = os.environ['FTP_DESTINATION_DIR']
 admin = os.environ['ADMINS'].split(',')
 ADMINS = ((admin[0], admin[1]),)
-EMAIL_BACKEND = os.environ['FTP_USER']
-EMAIL_HOST = os.environ['FTP_USER']
-EMAIL_PORT = os.environ['FTP_USER']
-EMAIL_HOST_USER = os.environ['FTP_USER']
-EMAIL_HOST_PASSWORD = os.environ['FTP_USER']
-EMAIL_USE_SSL = os.environ['FTP_USER']
+EMAIL_BACKEND = os.environ['EMAIL_BACKEND']
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_USE_SSL = os.environ['EMAIL_USE_SSL']
 # For mails to admins via `mail_admins()`
-SERVER_EMAIL = os.environ['FTP_USER']
+SERVER_EMAIL = os.environ['SERVER_EMAIL']
 # For `mail_admins()`
-EMAIL_SUBJECT_PREFIX = os.environ['FTP_USER']
+EMAIL_SUBJECT_PREFIX = os.environ['EMAIL_SUBJECT_PREFIX']
 # For mails to users via `send_mail()
-DEFAULT_FROM_EMAIL = os.environ['FTP_USER']
+DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
