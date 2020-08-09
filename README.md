@@ -41,10 +41,20 @@ The `merge_videos` script is not on a cron timer, but
 is a utility script provided to assist with stitching multiple
 videos together to create a longer video.
 
+## Map media dir with nginx
 
+If you want the media dir with all images to be browsable
+via nginx, update the nginx config with the location alias:
 
+```
+# http ...
+  # server ...
 
-
+    location /timelapser-images {
+        autoindex on;
+        alias /home/pi/Pi-Timelapser/app/media/;
+    }
+```
 
 
 ### Setup gunicorn or waitress? I don't need the front end even do I? What about waitress?
