@@ -48,6 +48,7 @@ class Command(BaseCommand):
             mail_admins('Timelapse video uploaded',
                         f'New timelapse video is ready for {self.yesterdays_date}: {self.zipped_video_path}')
         except Exception as e:
+            logging.error(f'Error during timelapse build. {e}')
             mail_admins('Error with timelapse nightly build', f'Error with timelapse for {FTP_DESTINATION_DIR} - {e}')
 
     def make_timelapse_video(self):
